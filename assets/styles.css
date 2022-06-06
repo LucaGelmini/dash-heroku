@@ -1,0 +1,36 @@
+html{
+    background-color: #ccc;
+}
+h1{
+    font-family: Helvetica, Arial, sans-serif, condensed;
+}
+.main-container{
+    margin: auto;
+    background-color: #ccc;
+}
+.content-container{
+    display: flex;
+    justify-content: space-around;
+    margin: 10px;
+}
+.plot-main-container{
+    display: flex;
+    margin: auto;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    width: 80%;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 10px 10px 5px 0px rgba(0,0,0,0.75);
+    
+    
+}
+.plot-selector-container{
+    width: 80%;
+}
+.plot{
+    width: 100%;
+    height: 100%;
+}
