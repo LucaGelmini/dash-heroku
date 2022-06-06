@@ -31,24 +31,60 @@ def series_multianios(df, cnomen, cpais, desde, hasta):
         s[i].index = s[i].index +f'-{anio}'
     return pd.concat(s)
 
+def grafico1():
+    return(
+        html.Div([
+
+            html.Div([
+                dcc.Dropdown(
+                    id="cnomen_dropdown",
+                    options=list(df_cif.CNOMEN.unique()),
+                    value=84410200,
+                    clearable=False,
+                ),
+                dcc.Dropdown(
+                    id="cpais_dropdown",
+                    options=list(df_cif.CPAIS.unique()),
+                    value="203",
+                    clearable=False,
+                ),
+                dcc.RadioItems(
+                    id="tipo-graf",
+                    options = ['linea', 'barra'],
+                    value='linea'),
+                dcc.RangeSlider(min=2019,
+                                max=2022,
+                                step=1,
+                                value=[2019, 2022],
+                                marks={a:f'{a}' for a in range(2019,2023)},
+                                id='intervalo'),
+            ], className='plot-selector-container'),
+            html.Div([
+                dcc.Graph(id="graf")
+                ],className='plot')
+            
+
+        ], className='plot-main-container')
+    )
+
 
 # Define Dash layout
 def create_dash_layout(app):
 
     # Set browser tab title
-    app.title = "Your app title" 
+    app.title = "Dashboard Fletes COMEX" 
     
     # Header
-    header = html.Div([html.Br(), dcc.Markdown(""" # Hi. I'm your Dash app."""), html.Br()])
+    header = html.Div([html.Br(), dcc.Markdown(""" # Probando"""), html.Br()])
     
     # Body 
     body = html.Div([
-        dcc.Markdown(""" ## I'm ready to serve static files on Heroku. Just look at this! """),
+        dcc.Markdown(""" CIF VS FOB """),
         html.Br(),
-        html.Img(src='charlie.png'),
-        html.Br(),
-        html.Button(id="boton", value=True),
-        dcc.Graph(id="pruebita")
+        html.Div([
+            grafico1(),
+            # grafico2()        
+            ],className='content-container')
         ])
 
     # Footer
@@ -60,18 +96,47 @@ def create_dash_layout(app):
     return app
 
 @app.callback(
-    Output("pruebita", "figure"),
-    Input('boton','value')
-)
-def update_chart(boton):
-    a= pd.DataFrame({'b': [1,2,3], 'c': [3,5,2]})
-    app.logger.info('holaaa')
+    Output("graf", "figure"),
+    [Input("cnomen_dropdown", "value"),
+     Input("cpais_dropdown", "value"),
+     Input("tipo-graf", "value"),
+     Input("intervalo", "value")
+     ]
+    )
+def update_chart(cnomen, cpais, tipo_graf, desde_hasta):
+    desde, hasta= desde_hasta
+    # width = [0.4]*12
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=[1,2,3], y=[3,5,2]))
-    
-    fig.update_layout(title =  "pruebita",
-                  title_font_size = 40,
-                )
+
+    if tipo_graf == "barra":
+        
+        fig.add_trace(go.Bar(x = series_multianios(df_cif, cnomen, cpais, desde, hasta).index,
+                            y = series_multianios(df_cif, cnomen, cpais, desde, hasta),
+                            # width = width,
+                            name='CIF'))
+        fig.add_trace(go.Bar(x = series_multianios(df_fob, cnomen, cpais, desde, hasta).index,
+                            y = series_multianios(df_fob, cnomen, cpais, desde, hasta),
+                            # width = width,
+                            name='FOB'))
+
+
+        fig.update_layout(title =  "CIF vs FOB",
+                        barmode = 'group', title_font_size = 40,
+                        )
+    if tipo_graf == "linea":
+        fig.add_trace(go.Scatter(x = series_multianios(df_cif, cnomen, cpais, desde, hasta).index,
+                        y = series_multianios(df_cif, cnomen, cpais, desde, hasta),
+                        # width = width,
+                        name='CIF'))
+        fig.add_trace(go.Scatter(x = series_multianios(df_fob, cnomen, cpais, desde, hasta).index,
+                        y = series_multianios(df_fob, cnomen, cpais, desde, hasta),
+                        # width = width,
+                        name='FOB'))
+
+        fig.update_layout(title =  "CIF vs FOB",
+                    barmode = 'group', title_font_size = 40,
+                    )
+        
     return fig
 
 
