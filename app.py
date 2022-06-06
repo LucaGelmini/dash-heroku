@@ -1,12 +1,12 @@
-from dash import Dash, callback, html, dcc
-from dash.dependencies import Output
+from multiprocessing.sharedctypes import Value
+from dash import Dash, html, dcc, Input, Output
 import dash_bootstrap_components as dbc
-import numpy as np
+# import numpy as np
 import pandas as pd
-import matplotlib as mpl
+# import matplotlib as mpl
 import gunicorn                     #whilst your local machine's webserver doesn't need this, Heroku's linux webserver (i.e. dyno) does. I.e. This is your HTTP server
 from whitenoise import WhiteNoise   #for serving static files on Heroku
-from plotly import graph_objects as go
+import plotly.graph_objects as go
 
 # Instantiate dash app
 app = Dash(__name__, external_stylesheets=[dbc.themes.FLATLY])
@@ -47,7 +47,8 @@ def create_dash_layout(app):
         html.Br(),
         html.Img(src='charlie.png'),
         html.Br(),
-        dcc.Graph(id='pruebita')
+        html.Button(id="boton", value=True),
+        dcc.Graph(id="pruebita")
         ])
 
     # Footer
@@ -59,17 +60,20 @@ def create_dash_layout(app):
     return app
 
 @app.callback(
-    Output('pruebita', 'figure')
+    Output("pruebita", "figure"),
+    Input('boton','value')
 )
-def update_chart():
-    x=[1,2,3]
-    y=[3,5,2]
+def update_chart(boton):
+    a= pd.DataFrame({'b': [1,2,3], 'c': [3,5,2]})
+    app.logger.info('holaaa')
+    fig = go.Figure()
+    fig.add_trace(go.Scatter(x=[1,2,3], y=[3,5,2]))
     
-    fig= go.Figure()
-    fig.add_trace(go.Scatter(x=x, y=y))
-    
+    fig.update_layout(title =  "pruebita",
+                  title_font_size = 40,
+                )
     return fig
-    
+
 
 # Construct the dash layout
 create_dash_layout(app)
